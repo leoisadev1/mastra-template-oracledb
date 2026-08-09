@@ -8,7 +8,9 @@ A [Mastra](https://mastra.ai) weather agent and workflow that store all data in 
 2. Add a second service for Oracle Database from this same repo:
    - Root directory: `docker/oracle`. Railway builds the Dockerfile it finds there.
    - Volume: mount at `/opt/oracle/oradata`. Give it at least 5 GB; the extracted database uses about 3.2 GB.
-   - Variable: `APP_USER_PASSWORD=<choose a password>`.
+   - Variable: `APP_USER_PASSWORD=<choose a password>`. Use 12 to 30 letters and digits only.
+     The Oracle image puts this value into a SQL statement, so quotes, `@`, `/`, and spaces can
+     break the user it creates and leave the app with `ORA-01017`.
    - The image listens on port `1521`.
 
    The Dockerfile wraps the Oracle entrypoint. The wrapper is required: Railway creates the
