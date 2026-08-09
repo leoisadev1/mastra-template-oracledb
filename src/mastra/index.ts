@@ -7,7 +7,8 @@ import { weatherWorkflow } from './workflows/weather-workflow';
 
 // One Oracle connection pool shared by storage and vectors.
 const poolManager = new OraclePoolManager({
-  user: process.env.ORACLE_DATABASE_USER,
+  // standalone: `mastra` is the application user the Oracle image creates
+  user: process.env.ORACLE_DATABASE_USER ?? 'mastra',
   password: process.env.ORACLE_DATABASE_PASSWORD,
   // standalone: fall back to the local docker-compose Oracle instance
   connectString: process.env.ORACLE_DATABASE_CONNECT_STRING ?? 'localhost:1521/FREEPDB1',

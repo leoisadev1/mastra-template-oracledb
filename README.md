@@ -5,23 +5,16 @@ A [Mastra](https://mastra.ai) weather agent and workflow that store all data in 
 ## Deploy on Railway
 
 1. Deploy this repo as a service. Railway builds it with `pnpm build` and starts it with `pnpm start` (see `railway.json`). The server listens on port `4111`.
-2. Add a second service for Oracle Database:
-   - Image: `gvenzl/oracle-free:23-slim-faststart`
-   - Volume: mount at `/opt/oracle/oradata`
-   - Variables: `ORACLE_RANDOM_PASSWORD=true`, `APP_USER=mastra`, `APP_USER_PASSWORD=<choose a password>`, `RAILWAY_RUN_UID=0`
-   - Start command: the wrapper below.
+2. Add a second service for Oracle Database from this same repo:
+   - Root directory: `docker/oracle`. Railway builds the Dockerfile it finds there.
+   - Volume: mount at `/opt/oracle/oradata`. Give it at least 5 GB; the extracted database uses about 3.2 GB.
+   - Variable: `APP_USER_PASSWORD=<choose a password>`.
    - The image listens on port `1521`.
 
-   The wrapper is required. Railway creates the volume owned by root, but the image runs as the
-   `oracle` user, so the database cannot write its data files. The wrapper also clears a partial
-   first boot: without that, the extractor stops on an interactive overwrite prompt and the
-   service restarts forever.
-
-   ```bash
-   bash -c 'set -Eeuo pipefail; O="${ORACLE_BASE}/oradata"; chown oracle:oinstall "$O"; chmod 750 "$O"; if [ -d "$O/dbconfig/${ORACLE_SID}" ]; then chown -R oracle:oinstall "$O"; else find "$O" -mindepth 1 -maxdepth 1 ! -name lost+found -exec rm -rf {} +; fi; export HOME=/home/oracle; exec chroot --userspec=oracle:oinstall --skip-chdir / /opt/oracle/container-entrypoint.sh'
-   ```
-
-   Give the volume at least 5 GB. The extracted database uses about 3.2 GB.
+   The Dockerfile wraps the Oracle entrypoint. The wrapper is required: Railway creates the
+   volume owned by root, but the database runs as the `oracle` user and cannot write its data
+   files. The wrapper also clears a partial first boot, because the extractor otherwise stops on
+   an interactive overwrite prompt and the service restarts forever.
 3. Set the environment variables on the app service (see table below). Point `ORACLE_DATABASE_CONNECT_STRING` at the Oracle service over the private network, for example `oracle.railway.internal:1521/FREEPDB1`.
 
 Note: the Oracle container needs about a minute on first boot to extract and open the database. A later restart reuses the volume and is ready in about ten seconds. The app service restarts until Oracle answers (`ON_FAILURE`, 10 retries).
@@ -29,14 +22,14 @@ Note: the Oracle container needs about a minute on first boot to extract and ope
 ## Services
 
 - **App** — this repo. Long-running Mastra server on port `4111`.
-- **Oracle Database** — image `gvenzl/oracle-free:23-slim-faststart`, port `1521`, volume at `/opt/oracle/oradata`.
+- **Oracle Database** — `docker/oracle/Dockerfile`, based on `gvenzl/oracle-free:23-slim-faststart`, port `1521`, volume at `/opt/oracle/oradata`.
 
 ## Environment variables
 
 | Name | Required | Description |
 | --- | --- | --- |
 | `OPENAI_API_KEY` | Yes | OpenAI API key for the agent's model. |
-| `ORACLE_DATABASE_USER` | Yes | Oracle application user. Matches `APP_USER` on the Oracle service. |
+| `ORACLE_DATABASE_USER` | No | Oracle application user. Defaults to `mastra`, the user the Oracle image creates. |
 | `ORACLE_DATABASE_PASSWORD` | Yes | Password for the Oracle user. Matches `APP_USER_PASSWORD`. |
 | `ORACLE_DATABASE_CONNECT_STRING` | Yes | Oracle connect string, `<host>:1521/FREEPDB1`. Defaults to `localhost:1521/FREEPDB1` for local development. |
 
