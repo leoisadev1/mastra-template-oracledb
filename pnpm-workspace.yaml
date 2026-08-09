@@ -3,3 +3,9 @@
 allowBuilds:
   esbuild: true
   oracledb: true
+
+# standalone: @mastra/oracledb 0.2.0-alpha.0 is newer than pnpm's default
+# minimumReleaseAge cutoff; without this exclusion `pnpm install` fails the
+# supply-chain policy check even with a committed lockfile.
+minimumReleaseAgeExclude:
+  - "@mastra/oracledb"
