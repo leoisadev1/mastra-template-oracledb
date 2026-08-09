@@ -1,5 +1,6 @@
 import { Mastra } from '@mastra/core/mastra';
 import { PinoLogger } from '@mastra/loggers';
+import { Observability, MastraStorageExporter, SensitiveDataFilter } from '@mastra/observability';
 import { OraclePoolManager, OracleStore, OracleVector } from '@mastra/oracledb';
 import { weatherAgent } from './agents/weather-agent';
 import { weatherWorkflow } from './workflows/weather-workflow';
@@ -25,5 +26,16 @@ export const mastra = new Mastra({
   logger: new PinoLogger({
     name: 'Mastra',
     level: 'info',
+  }),
+  // standalone: export traces to the Oracle-backed store, so the Studio
+  // Observability page reads real spans instead of nothing.
+  observability: new Observability({
+    configs: {
+      default: {
+        serviceName: 'mastra',
+        exporters: [new MastraStorageExporter()],
+        spanOutputProcessors: [new SensitiveDataFilter()],
+      },
+    },
   }),
 });

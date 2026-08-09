@@ -17,6 +17,9 @@ importers:
       '@mastra/memory':
         specifier: 1.26.0
         version: 1.26.0(@mastra/core@1.57.0(express@5.2.1)(zod@4.4.3))
+      '@mastra/observability':
+        specifier: 1.16.5
+        version: 1.16.5(@mastra/core@1.57.0(express@5.2.1)(zod@4.4.3))(zod@4.4.3)
       '@mastra/oracledb':
         specifier: 0.2.0-alpha.0
         version: 0.2.0-alpha.0(@mastra/core@1.57.0(express@5.2.1)(zod@4.4.3))
@@ -437,6 +440,13 @@ packages:
     engines: {node: '>=22.13.0'}
     peerDependencies:
       '@mastra/core': '>=1.4.1-0 <2.0.0-0'
+
+  '@mastra/observability@1.16.5':
+    resolution: {integrity: sha512-aADhcVMrvqebmGpVy4CCeIxz18BE3TBYDpDj11ymiy+PuC7RR2fN87NyuNA7AeYN1P3JV1KuDhnLpLSypjeINw==}
+    engines: {node: '>=22.13.0'}
+    peerDependencies:
+      '@mastra/core': '>=1.16.0-0 <2.0.0-0'
+      zod: ^3.25.0 || ^4.0.0
 
   '@mastra/oracledb@0.2.0-alpha.0':
     resolution: {integrity: sha512-kI/mDmnFHNOJwkR7S1k5DhQ5NW3LVx2RpESyfBAgLr9qtCI4qM/ogags8fc81F/1Gi0zkVNMye3bQcgE8oB9bw==}
@@ -2834,6 +2844,11 @@ snapshots:
       zod: 4.4.3
     transitivePeerDependencies:
       - supports-color
+
+  '@mastra/observability@1.16.5(@mastra/core@1.57.0(express@5.2.1)(zod@4.4.3))(zod@4.4.3)':
+    dependencies:
+      '@mastra/core': 1.57.0(express@5.2.1)(zod@4.4.3)
+      zod: 4.4.3
 
   '@mastra/oracledb@0.2.0-alpha.0(@mastra/core@1.57.0(express@5.2.1)(zod@4.4.3))':
     dependencies:

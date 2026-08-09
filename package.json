@@ -19,6 +19,7 @@
     "@mastra/core": "1.57.0",
     "@mastra/loggers": "1.2.0",
     "@mastra/memory": "1.26.0",
+    "@mastra/observability": "1.16.5",
     "@mastra/oracledb": "0.2.0-alpha.0",
     "mastra": "1.23.0",
     "zod": "^4.4.3"

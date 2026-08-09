@@ -8,11 +8,23 @@ A [Mastra](https://mastra.ai) weather agent and workflow that store all data in 
 2. Add a second service for Oracle Database:
    - Image: `gvenzl/oracle-free:23-slim-faststart`
    - Volume: mount at `/opt/oracle/oradata`
-   - Variables: `ORACLE_RANDOM_PASSWORD=true`, `APP_USER=mastra`, `APP_USER_PASSWORD=<choose a password>`
+   - Variables: `ORACLE_RANDOM_PASSWORD=true`, `APP_USER=mastra`, `APP_USER_PASSWORD=<choose a password>`, `RAILWAY_RUN_UID=0`
+   - Start command: the wrapper below.
    - The image listens on port `1521`.
+
+   The wrapper is required. Railway creates the volume owned by root, but the image runs as the
+   `oracle` user, so the database cannot write its data files. The wrapper also clears a partial
+   first boot: without that, the extractor stops on an interactive overwrite prompt and the
+   service restarts forever.
+
+   ```bash
+   bash -c 'set -Eeuo pipefail; O="${ORACLE_BASE}/oradata"; chown oracle:oinstall "$O"; chmod 750 "$O"; if [ -d "$O/dbconfig/${ORACLE_SID}" ]; then chown -R oracle:oinstall "$O"; else find "$O" -mindepth 1 -maxdepth 1 ! -name lost+found -exec rm -rf {} +; fi; export HOME=/home/oracle; exec chroot --userspec=oracle:oinstall --skip-chdir / /opt/oracle/container-entrypoint.sh'
+   ```
+
+   Give the volume at least 5 GB. The extracted database uses about 3.2 GB.
 3. Set the environment variables on the app service (see table below). Point `ORACLE_DATABASE_CONNECT_STRING` at the Oracle service over the private network, for example `oracle.railway.internal:1521/FREEPDB1`.
 
-Note: the Oracle container needs one to two minutes on first boot to create the database. The app retries are covered by the `ON_FAILURE` restart policy.
+Note: the Oracle container needs about a minute on first boot to extract and open the database. A later restart reuses the volume and is ready in about ten seconds. The app service restarts until Oracle answers (`ON_FAILURE`, 10 retries).
 
 ## Services
 
