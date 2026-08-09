@@ -6,6 +6,11 @@
 # it treats leftover files from a failed first boot as a corrupt database.
 set -Eeuo pipefail
 
+# Guard the wipe below: an empty ORACLE_SID would make the check miss an
+# initialized database and delete it.
+: "${ORACLE_BASE:?ORACLE_BASE must be set by the image}"
+: "${ORACLE_SID:?ORACLE_SID must be set by the image}"
+
 DATA_DIR="${ORACLE_BASE}/oradata"
 
 echo "RAILWAY: preparing ${DATA_DIR}"
@@ -21,4 +26,13 @@ else
 fi
 
 export HOME=/home/oracle
-exec chroot --userspec=oracle:oinstall --skip-chdir / /opt/oracle/container-entrypoint.sh "$@"
+
+# Drop to the oracle user. Railway's runtime does not grant CAP_SYS_CHROOT, so
+# `chroot --userspec` fails here; use the plain privilege-drop tools instead.
+if command -v setpriv > /dev/null 2>&1; then
+  exec setpriv --reuid=oracle --regid=oinstall --init-groups /opt/oracle/container-entrypoint.sh "$@"
+elif command -v runuser > /dev/null 2>&1; then
+  exec runuser -u oracle -g oinstall -- /opt/oracle/container-entrypoint.sh "$@"
+else
+  exec su -s /bin/bash -c '/opt/oracle/container-entrypoint.sh' oracle
+fi
