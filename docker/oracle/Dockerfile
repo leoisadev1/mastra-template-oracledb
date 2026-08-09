@@ -13,6 +13,12 @@ ENV APP_USER=mastra \
 # drops to the oracle user before it starts the database.
 USER root
 
+# The slim image ships neither setpriv, runuser, nor su, and Railway does not
+# grant CAP_SYS_CHROOT, so `chroot --userspec` cannot drop privileges either.
+RUN (microdnf install -y util-linux || dnf install -y util-linux || yum install -y util-linux) \
+  && (microdnf clean all || dnf clean all || yum clean all) \
+  && command -v setpriv
+
 COPY entrypoint.sh /railway-entrypoint.sh
 RUN chmod +x /railway-entrypoint.sh
 
