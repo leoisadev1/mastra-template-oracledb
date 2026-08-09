@@ -6,7 +6,7 @@
   "description": "Weather agent template backed by Oracle Database storage and vector search",
   "scripts": {
     "dev": "mastra dev",
-    "build": "mastra build",
+    "build": "mastra build --studio",
     "start": "mastra start",
     "typecheck": "tsc --noEmit"
   },
