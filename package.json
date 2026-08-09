@@ -1,0 +1,30 @@
+{
+  "name": "mastra-template-oracledb",
+  "type": "module",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Weather agent template backed by Oracle Database storage and vector search",
+  "scripts": {
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "start": "mastra start",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@11.8.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "@mastra/core": "1.57.0",
+    "@mastra/loggers": "1.2.0",
+    "@mastra/memory": "1.26.0",
+    "@mastra/oracledb": "0.2.0-alpha.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.15",
+    "mastra": "1.23.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,5 @@
+# Build-script approvals only. No workspace packages and no overrides.
+# pnpm 11 fails `pnpm install` when dependency build scripts are not approved.
+allowBuilds:
+  esbuild: true
+  oracledb: true

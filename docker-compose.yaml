@@ -1,0 +1,23 @@
+# Local development only. On Railway, add a separate service that runs this
+# same image with a volume at /opt/oracle/oradata.
+services:
+  db:
+    image: gvenzl/oracle-free:23-slim-faststart
+    container_name: 'mastra-template-oracledb'
+    ports:
+      - '${ORACLE_DATABASE_PORT:-1521}:1521'
+    environment:
+      ORACLE_RANDOM_PASSWORD: 'true'
+      APP_USER: ${ORACLE_DATABASE_USER:?Set ORACLE_DATABASE_USER before starting Oracle}
+      APP_USER_PASSWORD: ${ORACLE_DATABASE_PASSWORD:?Set ORACLE_DATABASE_PASSWORD before starting Oracle}
+    volumes:
+      - oracledbdata:/opt/oracle/oradata
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+volumes:
+  oracledbdata:
