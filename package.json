@@ -20,11 +20,11 @@
     "@mastra/loggers": "1.2.0",
     "@mastra/memory": "1.26.0",
     "@mastra/oracledb": "0.2.0-alpha.0",
+    "mastra": "1.23.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "22.19.15",
-    "mastra": "1.23.0",
     "typescript": "^5.9.3"
   }
 }
